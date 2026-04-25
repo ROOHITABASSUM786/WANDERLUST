@@ -30,6 +30,7 @@ const listingSchema = new Schema({
   enum: [
     "trending",
     "rooms",
+    "iconic_cities",
     "mountains",
     "castles",
     "amazing_pools",
