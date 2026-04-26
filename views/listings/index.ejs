@@ -18,6 +18,8 @@
       scrollbar-width: none;
       /* Firefox */
       -webkit-overflow-scrolling: touch;
+      width: 100%;
+  overflow-x: auto;
     }
 
     #filters::-webkit-scrollbar {
@@ -50,28 +52,29 @@
 
 
     /* Responsive: stack toggle below filters on small screens */
-    @media (max-width: 600px) {
-      #filters-wrapper {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-      }
+   @media (max-width: 600px) {
+  #filters-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
 
-      #filters {
-        padding: 0;
-        margin-bottom: 0.5rem;
-      }
+  #filters {
+    scroll-behavior: smooth;
+    padding: 0;
+    margin-bottom: 0.5rem;
+  }
 
-      .filter i {
-        font-size: 1.4rem;
-      }
+  .filter i {
+    font-size: 1.4rem;
+  }
 
-      .filter p {
-        font-size: 0.75rem;
-      }
-
+  .filter p {
+    font-size: 0.75rem;
+  }
+}
    
-    }
+    
 
     .tax-info {
       display: none;
@@ -83,17 +86,20 @@
       height: 2.8rem;
       padding: 1rem;
       display: flex;
+      width: 300px;
       align-items: center;
     }
     a.filter {
   text-decoration: none;   /* remove underline */
   color: inherit;          /* use same color as parent */
 }
+
+
   </style>
 
   <div id="filters-wrapper">
     <div id="filters">
-<div id="filters">
+
 
   <a href="/listings" class="filter">
     <div><i class="fa-solid fa-fire"></i></div>
@@ -151,15 +157,16 @@
   </a>
 
 </div>
-    </div>
-
     <div class="tax-toggle">
       <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckdefault" />
         <label class="form-check-label" for="flexSwitchCheckdefault">Display total after taxes</label>
       </div>
-    </div>
+  
   </div>
+    
+  </div>
+
   <div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1 mt-3">
     <% for(let listing of allListings) {%>
       <a href="/listings/<%=listing._id%>" class="listing-link">

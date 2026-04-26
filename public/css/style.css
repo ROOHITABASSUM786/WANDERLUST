@@ -4,13 +4,15 @@ body{
     display: flex;
     flex-direction: column;
     height: 100vh;
+    
 }
 .container{
     flex: 1;
 }
 .navbar{
+    
     height: 5rem;
-    background-color: white;
+    background-color: white ;
 }
 .fa-airbnb{
     color: #fe424d;
@@ -101,3 +103,5 @@ text-decoration: underline;
     height: 400px;
     width:100vh;
 }
+
+
