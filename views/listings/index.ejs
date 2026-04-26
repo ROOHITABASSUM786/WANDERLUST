@@ -94,7 +94,13 @@
   color: inherit;          /* use same color as parent */
 }
 
-
+.explore-btn {
+  background-color: #fe424d;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.6rem 1.5rem;
+  text-decoration: none;
+}
   </style>
 
   <div id="filters-wrapper">
@@ -167,25 +173,45 @@
     
   </div>
 
+  <% if(allListings.length === 0) { %>
+
+<div class="text-center  empty-state">
+  <div style="font-size: 2rem;">✨</div>
+  
+  <h4 class="mt-2"><i>No stays here yet</i></h4>
+  
+  <p class="text-muted">
+    Try exploring other places — you might find something you love!
+  </p>
+
+  <a href="/listings" class="explore-btn mt-3">
+  Explore all stays
+</a>
+</div>
+
+<% } else { %>
+
   <div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1 mt-3">
-    <% for(let listing of allListings) {%>
+    <% for(let listing of allListings) { %>
+
       <a href="/listings/<%=listing._id%>" class="listing-link">
         <div class="card col listing-card">
           <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
           <div class="card-img-overlay"></div>
           <div class="card-body">
-            <p class="card-text"><b>
-                <%= listing.title%>
-              </b>
-              <br>&#8377;
-              <%= listing.price.toLocaleString("en-IN") %> / night
-                <i class="tax-info">&nbsp; &nbsp; +18% GST</i>
+            <p class="card-text">
+              <b><%= listing.title %></b><br>
+              &#8377;<%= listing.price.toLocaleString("en-IN") %> / night
+              <i class="tax-info">&nbsp; +18% GST</i>
             </p>
           </div>
         </div>
       </a>
-      <% } %>
+
+    <% } %>
   </div>
+
+<% } %>
 
 
 
