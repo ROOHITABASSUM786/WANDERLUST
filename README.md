@@ -37,7 +37,7 @@ An Airbnb-inspired full-stack web app to discover and list unique travel stays â
 ## ðŸš€ Getting Started
 
 ```bash
-git clone https://github.com/your-username/wanderlust.git
+git clone https://github.com/ROOHITABASSUM786/wanderlust.git
 cd wanderlust
 npm install
 node app.js
