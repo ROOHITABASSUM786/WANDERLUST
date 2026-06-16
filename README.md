@@ -2,7 +2,7 @@
 
 An Airbnb-inspired full-stack web app to discover and list unique travel stays — from mountain cabins to arctic domes.
 
-🔗 **Live Demo:** https://wanderlust-m3dm.onrender.com/listings
+🔗 **Live Demo:** https://wanderlust-bii0.onrender.com/listings
 
 ---
 
