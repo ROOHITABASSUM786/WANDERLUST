@@ -1,0 +1,181 @@
+<!-- ChatGPT Style Offcanvas AI Assistant Drawer -->
+<style>
+  #chat-history .markdown-body h1,
+  #chat-history .markdown-body h2,
+  #chat-history .markdown-body h3,
+  #chat-history .markdown-body h4,
+  #chat-history .markdown-body h5,
+  #chat-history .markdown-body h6,
+  .markdown-body h1,
+  .markdown-body h2,
+  .markdown-body h3,
+  .markdown-body h4,
+  .markdown-body h5,
+  .markdown-body h6 {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    color: #222222 !important;
+  }
+
+  #chat-history .markdown-body p,
+  .markdown-body p {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    color: #222222 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  #chat-history .markdown-body ul,
+  #chat-history .markdown-body ol,
+  .markdown-body ul,
+  .markdown-body ol {
+    margin-bottom: 0.5rem !important;
+    padding-left: 1.25rem !important;
+  }
+
+  #chat-history .markdown-body li,
+  .markdown-body li {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    color: #222222 !important;
+    margin-bottom: 0.25rem !important;
+  }
+</style>
+
+<div class="offcanvas offcanvas-end border-0 shadow-lg" tabindex="-1" id="aiOffcanvas" aria-labelledby="aiOffcanvasLabel" style="width: 460px; max-width: 90vw; background-color: #F9F9F9;">
+  
+  <!-- Offcanvas Header -->
+  <div class="offcanvas-header border-bottom bg-white px-4 py-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 38px; height: 38px; background-color: #FF385C;">
+        <i class="bi bi-sparkles fs-5"></i>
+      </div>
+      <div>
+        <h5 class="offcanvas-title fw-bold text-dark fs-6 mb-0" id="aiOffcanvasLabel">Wanderlust AI Assistant</h5>
+        <small class="text-muted" style="font-size: 0.78rem;">Powered by Gemini 3.6 Flash</small>
+      </div>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <!-- Scrollable Chat History Area -->
+  <div class="offcanvas-body p-4 d-flex flex-column" id="chat-history" style="overflow-y: auto; scroll-behavior: smooth;">
+    
+    <!-- Welcome AI Bubble -->
+    <div class="p-3 bg-white border border-light rounded-4 mb-3 float-start clear-both w-100 shadow-sm">
+      <div class="fw-semibold text-dark mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-robot" style="color: #FF385C;"></i> Wanderlust AI
+      </div>
+      <p class="mb-0 text-secondary" style="color: #222222; font-size: 0.95rem; line-height: 1.55;">
+        Hello! I'm your Wanderlust travel companion. Ask me anything—custom trip itineraries, local hidden gems, flight advice, or destination tips!
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Fixed Bottom Input Container -->
+  <div class="p-3 bg-white border-top">
+    <div class="position-relative">
+      <input type="text" id="chat-drawer-input" class="form-control rounded-pill border shadow-sm px-4 py-3 bg-white w-100" placeholder="Ask Wanderlust AI anything..." style="padding-right: 55px !important; font-size: 0.95rem; color: #222222;" />
+      <button type="button" id="chat-drawer-send-btn" class="btn p-0 border-0 position-absolute end-0 top-50 translate-middle-y me-3" style="color: #FF385C; background: transparent;" onclick="sendDrawerChatMessage()">
+        <i class="bi bi-send-fill fs-5"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async function sendDrawerChatMessage() {
+    const inputEl = document.getElementById("chat-drawer-input");
+    const userText = inputEl.value.trim();
+    if (!userText) return;
+
+    const chatHistory = document.getElementById("chat-history");
+    const sendBtn = document.getElementById("chat-drawer-send-btn");
+
+    // Disable input while processing
+    inputEl.value = "";
+    inputEl.disabled = true;
+    sendBtn.disabled = true;
+
+    // 1. Append USER Message Bubble
+    const userBubble = document.createElement("div");
+    userBubble.className = "w-100 float-end clear-both mb-3 text-end";
+    userBubble.innerHTML = `
+      <div class="rounded-start-4 rounded-top-4 rounded-bottom-1 px-3 py-2 text-white bg-dark d-inline-block text-start shadow-sm max-width-75" style="max-width: 82%; background-color: #222222 !important; font-size: 0.95rem;">
+        ${escapeHtml(userText)}
+      </div>
+    `;
+    chatHistory.appendChild(userBubble);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // 2. Append AI Typing Indicator Bubble
+    const loadingBubble = document.createElement("div");
+    loadingBubble.className = "p-3 bg-white border border-light rounded-4 mb-3 float-start clear-both w-100 shadow-sm";
+    loadingBubble.id = "drawer-ai-loading-bubble";
+    loadingBubble.innerHTML = `
+      <div class="d-flex align-items-center gap-2 text-muted">
+        <div class="spinner-grow spinner-grow-sm" role="status" style="color: #FF385C !important;"></div>
+        <span class="small text-secondary fw-medium">Wanderlust AI is writing...</span>
+      </div>
+    `;
+    chatHistory.appendChild(loadingBubble);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    try {
+      const res = await fetch("/api/ai-assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: userText })
+      });
+      const data = await res.json();
+
+      // Remove loading indicator
+      const loader = document.getElementById("drawer-ai-loading-bubble");
+      if (loader) loader.remove();
+
+      // 3. Append AI Response Bubble
+      const aiBubble = document.createElement("div");
+      aiBubble.className = "p-3 bg-white border border-light rounded-4 mb-3 float-start clear-both w-100 shadow-sm";
+      const formattedHtml = typeof marked !== "undefined" ? marked.parse(data.text || "") : escapeHtml(data.text || "");
+      aiBubble.innerHTML = `
+        <div class="fw-semibold text-dark mb-2 d-flex align-items-center gap-2">
+          <i class="bi bi-robot" style="color: #FF385C;"></i> Wanderlust AI
+        </div>
+        <div class="markdown-body" style="color: #222222; font-size: 0.95rem; line-height: 1.6;">
+          ${formattedHtml}
+        </div>
+      `;
+      chatHistory.appendChild(aiBubble);
+    } catch (err) {
+      console.error(err);
+      const loader = document.getElementById("drawer-ai-loading-bubble");
+      if (loader) loader.remove();
+
+      const errorBubble = document.createElement("div");
+      errorBubble.className = "p-3 bg-white border border-light rounded-4 mb-3 float-start clear-both w-100 text-danger shadow-sm";
+      errorBubble.innerHTML = "Oops! Something went wrong while connecting to Wanderlust AI. Please try again.";
+      chatHistory.appendChild(errorBubble);
+    } finally {
+      inputEl.disabled = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+  }
+
+  document.getElementById("chat-drawer-input")?.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      sendDrawerChatMessage();
+    }
+  });
+</script>

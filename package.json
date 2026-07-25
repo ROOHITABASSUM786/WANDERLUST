@@ -1,6 +1,6 @@
 {
-  "engines":{
-"node": "25.9.0"
+  "engines": {
+    "node": "25.9.0"
   },
   "name": "majorproject",
   "version": "1.0.0",
@@ -14,6 +14,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@google/genai": "^2.13.0",
     "@mapbox/mapbox-sdk": "^0.16.2",
     "axios": "^1.14.0",
     "cloudinary": "^1.41.3",

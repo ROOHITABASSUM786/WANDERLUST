@@ -1,86 +1,230 @@
 <% layout("/layouts/boilerplate") -%>
 
-  <body>
+<style>
+  .host-container {
+    max-width: 640px;
+    margin: 32px auto 64px auto;
+    padding: 0 16px;
+  }
+  .edit-upload-zone {
+    position: relative;
+    border: 2px dashed #DDDDDD;
+    border-radius: 20px;
+    min-height: 280px;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .edit-upload-zone:hover {
+    border-color: #222222;
+  }
+  .edit-upload-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .edit-upload-zone:hover .edit-upload-overlay {
+    background: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+  }
+  .host-input {
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid #DDDDDD !important;
+    color: #222222 !important;
+  }
+  .host-input:focus,
+  .host-textarea:focus,
+  .host-price-input:focus {
+    border-color: #222222 !important;
+    box-shadow: 0 0 0 1px #222222 !important;
+  }
+  .host-textarea {
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid #DDDDDD !important;
+    min-height: 140px;
+    color: #222222 !important;
+  }
+  .host-price-input {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    padding: 14px 16px 14px 38px !important;
+    border-radius: 12px !important;
+    border: 1px solid #DDDDDD !important;
+    color: #222222 !important;
+  }
+  .location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .location-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .host-submit-btn {
+    background: #FF385C !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    flex: 1;
+    border: none !important;
+    transition: background-color 0.2s ease !important;
+  }
+  .host-submit-btn:hover {
+    background: #E31C5F !important;
+    color: #ffffff !important;
+  }
+  .host-cancel-btn {
+    background: #ffffff !important;
+    color: #222222 !important;
+    border: 1px solid #DDDDDD !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    flex: 1;
+    text-align: center;
+    text-decoration: none !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease !important;
+  }
+  .host-cancel-btn:hover {
+    background-color: #F7F7F7 !important;
+    color: #222222 !important;
+    border-color: #b0b0b0 !important;
+  }
+  .form-section {
+    margin-bottom: 32px;
+  }
+</style>
 
-    <h3> <br>Edit your Listings</h3>
-    <br>
-    <div class="row mt-3">
-      <div class="col-8 offset-2">
-        <form method="POST" action="/listings/<%= listing._id%>?_method=PUT" novalidate class="needs-validation"
-          enctype="multipart/form-data">
-          <div class="mb-3">
-            <label for="title" class="form-label">Tittle</label>
-            <input type="text" name="listing[title]" value="<%= listing.title %>" class="form-control" required>
-            <div class="valid-feedback">
-              Tittle looks good!
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
-            <div class="invalid-feedback">
-              please enter a short Description
-            </div>
-          </div>
-          <div class="mb-3">
-            Original Listing Image <br>
-            <img src="<%= originalImage %>" alt="">
-          </div>
-          <div class="mb-3">
-            <label for="image" class="form-label">Upload a new Image</label>
-            <input type="file" name="listing[image]" class="form-control">
-            <div class="invalid-feedback">
-              please enter a Url
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="category" class="form-label">Category</label>
-            <select name="listing[category]" class="form-control" required>
-              <option value="trending" <%=listing.category==="trending" ? "selected" : "" %>>Trending</option>
-              <option value="rooms" <%=listing.category==="rooms" ? "selected" : "" %>>Rooms</option>
-              <option value="iconic_cities" <%=listing.category==="iconic_cities" ? "selected" : "" %>>Iconic Cities
-              </option>
-              <option value="mountains" <%=listing.category==="mountains" ? "selected" : "" %>>Mountains</option>
-              <option value="castles" <%=listing.category==="castles" ? "selected" : "" %>>Castles</option>
-             <option value="amazing_pools" <%= listing.category === "amazing_pools" ? "selected" : "" %>>
-  Amazing Pools
-</option>
-              <option value="camping" <%=listing.category==="camping" ? "selected" : "" %>>Camping</option>
-              <option value="farms" <%=listing.category==="farms" ? "selected" : "" %>>Farms</option>
-              <option value="arctic" <%=listing.category==="arctic" ? "selected" : "" %>>Arctic</option>
-              <option value="domes" <%=listing.category==="domes" ? "selected" : "" %>>Domes</option>
-              <option value="boats" <%=listing.category==="boats" ? "selected" : "" %>>Boats</option>
-            </select>
-          </div>
-          <div class="row">
+<div class="host-container">
+  <!-- Page Header -->
+  <div class="mb-4">
+    <h1 class="fw-bold text-dark fs-2 mb-1" style="letter-spacing: -0.5px;">Update your listing</h1>
+    <p class="text-muted fs-6 mb-0">Edit details or change photo for your space</p>
+  </div>
 
-            <div class="mb-3 col-md-4">
-              <label for="price" class="form-label">Price</label>
-              <input type="number" name="listing[price]" value="<%= listing.price %>" class="form-control" required>
+  <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
+    
+    <!-- 1. Photo Upload / Preview Zone -->
+    <div class="form-section">
+      <label class="form-label fw-bold text-dark fs-6 mb-2">Listing Photo</label>
+      <div class="edit-upload-zone" id="upload-zone" style="background-image: url('<%= originalImage || listing.image.url %>');" onclick="document.getElementById('image-file-input').click()">
+        <div class="edit-upload-overlay">
+          <i class="bi bi-camera fs-2 mb-1"></i>
+          <span class="fw-semibold fs-6">Change photo</span>
+        </div>
+      </div>
+      <input type="file" name="listing[image]" id="image-file-input" class="d-none" accept="image/*" onchange="previewSelectedImage(this)">
+      <div class="invalid-feedback small mt-1">Please select a valid image file.</div>
+    </div>
 
-              <div class="invalid-feedback">
-                price should be valid
-              </div>
-            </div>
-            <div class="mb-3 col-md-8">
-              <label for="location" class="form-label">location</label>
-              <input type="text" name="listing[location]" value="<%= listing.location %>" class="form-control" required>
-              <div class="invalid-feedback">
-                please enter a location
-              </div>
-            </div>
+    <!-- 2. Title -->
+    <div class="form-section">
+      <label for="title" class="form-label fw-bold text-dark fs-6 mb-2">What's the name of your place?</label>
+      <input type="text" id="title" name="listing[title]" value="<%= listing.title %>" class="form-control host-input" required>
+      <div class="invalid-feedback small mt-1">Please enter a title for your place.</div>
+    </div>
 
-          </div>
-          <div class="mb-3">
-            <label for="country" class="form-label">country</label>
-            <input type="text" name="listing[country]" value="<%= listing.country %>" class="form-control" required>
-            <div class="invalid-feedback">
-              please enter a country name
-            </div>
-          </div><br>
-          <button class="btn btn-dark edit-btn mt-3">Edit</button>
-          <br><br>
+    <!-- 3. Description -->
+    <div class="form-section">
+      <label for="description" class="form-label fw-bold text-dark fs-6 mb-2">Create your description</label>
+      <textarea id="description" name="listing[description]" class="form-control host-textarea" required><%= listing.description %></textarea>
+      <div class="d-flex justify-content-between mt-1">
+        <div class="invalid-feedback small">Please enter a description.</div>
+        <span class="text-muted ms-auto" style="font-size: 12px;">Include details about view, space & amenities</span>
       </div>
     </div>
+
+    <!-- 4. Category -->
+    <div class="form-section">
+      <label for="category" class="form-label fw-bold text-dark fs-6 mb-2">Choose a category</label>
+      <select id="category" name="listing[category]" class="form-select host-input" required>
+        <option value="trending" <%= listing.category === "trending" ? "selected" : "" %>>🔥 Trending</option>
+        <option value="rooms" <%= listing.category === "rooms" ? "selected" : "" %>>🛏️ Rooms</option>
+        <option value="iconic_cities" <%= listing.category === "iconic_cities" ? "selected" : "" %>>🏙️ Iconic Cities</option>
+        <option value="mountains" <%= listing.category === "mountains" ? "selected" : "" %>>⛰️ Mountains</option>
+        <option value="castles" <%= listing.category === "castles" ? "selected" : "" %>>🏰 Castles</option>
+        <option value="amazing_pools" <%= listing.category === "amazing_pools" ? "selected" : "" %>>🏊 Amazing Pools</option>
+        <option value="camping" <%= listing.category === "camping" ? "selected" : "" %>>⛺ Camping</option>
+        <option value="farms" <%= listing.category === "farms" ? "selected" : "" %>>🚜 Farms</option>
+        <option value="arctic" <%= listing.category === "arctic" ? "selected" : "" %>>❄️ Arctic</option>
+        <option value="domes" <%= listing.category === "domes" ? "selected" : "" %>>🛖 Domes</option>
+        <option value="boats" <%= listing.category === "boats" ? "selected" : "" %>>⛵ Boats</option>
+      </select>
+    </div>
+
+    <!-- 5. Price -->
+    <div class="form-section">
+      <label for="price" class="form-label fw-bold text-dark fs-6 mb-2">Set your price</label>
+      <div class="position-relative">
+        <span class="position-absolute top-50 start-0 translate-middle-y ms-3 fw-bold text-dark" style="font-size: 20px; z-index: 5;">₹</span>
+        <input type="number" id="price" name="listing[price]" value="<%= listing.price %>" class="form-control host-price-input" min="0" required>
+      </div>
+      <div class="form-text text-muted mt-1" style="font-size: 12px;">Nightly rate before taxes</div>
+      <div class="invalid-feedback small mt-1">Please enter a valid price per night.</div>
+    </div>
+
+    <!-- 6. Location & Country (2-column responsive grid) -->
+    <div class="form-section">
+      <div class="location-grid">
+        <div>
+          <label for="location" class="form-label fw-bold text-dark fs-6 mb-2">Location / City</label>
+          <input type="text" id="location" name="listing[location]" value="<%= listing.location %>" class="form-control host-input" required>
+          <div class="invalid-feedback small mt-1">Please enter a location.</div>
+        </div>
+        <div>
+          <label for="country" class="form-label fw-bold text-dark fs-6 mb-2">Country</label>
+          <input type="text" id="country" name="listing[country]" value="<%= listing.country %>" class="form-control host-input" required>
+          <div class="invalid-feedback small mt-1">Please enter a country.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Action Buttons: Save & Cancel -->
+    <div class="d-flex gap-3 mt-4">
+      <a href="/listings/<%= listing._id %>" class="host-cancel-btn">Cancel</a>
+      <button class="btn host-submit-btn" type="submit">Save Changes</button>
+    </div>
+
+  </form>
+
+  <!-- Separate Delete Listing Option -->
+  <div class="mt-5 pt-4 border-top text-center">
+    <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+      <button type="submit" class="btn btn-link text-danger text-decoration-none fw-semibold small p-0">
+        <i class="bi bi-trash me-1"></i> Delete this listing
+      </button>
     </form>
-  </body>
+  </div>
+
+</div>
+
+<script>
+  function previewSelectedImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const uploadZone = document.getElementById('upload-zone');
+        uploadZone.style.backgroundImage = `url('${e.target.result}')`;
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>

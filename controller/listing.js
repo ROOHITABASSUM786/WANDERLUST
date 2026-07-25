@@ -1,16 +1,38 @@
 const Listing=require("../models/listing")
+const { GoogleGenAI } = require("@google/genai");
 
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken=process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken});
 const axios = require("axios");
-module.exports.index = async (req, res) =>
-     { const { category } = req.query;
- let filter = {}; 
- if (category) { 
-    filter.category = category; } 
- const allListings = await Listing.find(filter); 
- res.render("listings/index.ejs", { allListings, category }); };
+const formatListingRatings = (listings) => {
+    return listings.map(listing => {
+        const listingObj = listing.toObject ? listing.toObject() : listing;
+        const reviews = listingObj.reviews || [];
+        const reviewCount = reviews.length;
+        let avgRating = null;
+        if (reviewCount > 0) {
+            const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+            avgRating = sum / reviewCount;
+        }
+        return {
+            ...listingObj,
+            avgRating,
+            reviewCount
+        };
+    });
+};
+
+module.exports.index = async (req, res) => {
+    const { category } = req.query;
+    let filter = {};
+    if (category) {
+        filter.category = category;
+    }
+    const rawListings = await Listing.find(filter).populate("reviews");
+    const allListings = formatListingRatings(rawListings);
+    res.render("listings/index.ejs", { allListings, category });
+};
 
 module.exports.renderNewForm= (req, res) => {
     res.render("listings/new.ejs");
@@ -74,3 +96,56 @@ module.exports.destroyListing=async (req, res) => {
     req.flash("success", "New Listing deleted");
     res.redirect("/listings")
 }
+
+module.exports.searchListings = async (req, res) => {
+    let { q } = req.query;
+    if (!q || q.trim() === "") {
+        return res.redirect("/listings");
+    }
+    let query = q.trim();
+    const rawListings = await Listing.find({
+        $or: [
+            { title: { $regex: query, $options: "i" } },
+            { location: { $regex: query, $options: "i" } },
+            { country: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } }
+        ]
+    }).populate("reviews");
+    const allListings = formatListingRatings(rawListings);
+    res.render("listings/index.ejs", { allListings });
+}
+
+module.exports.renderAiPage = async (req, res) => {
+    const rawListings = await Listing.find({}).populate("reviews").limit(6);
+    const featuredListings = formatListingRatings(rawListings);
+    res.render("ai.ejs", { featuredListings });
+};
+
+module.exports.processAiQuery = async (req, res) => {
+    const userPrompt = req.body.prompt;
+    if (!userPrompt || !userPrompt.trim()) {
+        return res.json({ text: "Please enter a travel question or topic!" });
+    }
+
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        const ai = new GoogleGenAI({ apiKey: apiKey || "" });
+        const response = await ai.models.generateContent({
+            model: 'gemini-3.6-flash',
+            contents: userPrompt,
+            config: {
+                systemInstruction: "You are the Wanderlust AI Assistant. Do not filter internal website data. Instead, answer all general travel questions, create custom itineraries, provide destination advice, and chat dynamically. Format your entire answer in beautiful, clean Markdown."
+            }
+        });
+        res.json({ text: response.text });
+    } catch (err) {
+        console.error("Gemini AI Error:", err);
+        res.json({ text: "I'm having trouble connecting to Google Gen AI. Please verify your `GEMINI_API_KEY` in `.env`." });
+    }
+};
+
+module.exports.renderFavorites = async (req, res) => {
+    const rawListings = await Listing.find({}).populate("reviews");
+    const allListings = formatListingRatings(rawListings);
+    res.render("listings/index.ejs", { allListings, isFavoritesPage: true });
+};

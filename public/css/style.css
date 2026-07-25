@@ -1,112 +1,251 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-body{
+body {
     font-family: "Plus Jakarta Sans", sans-serif !important;
     display: flex;
     flex-direction: column;
     height: 100vh;
-    
 }
-.container{
+
+.container,
+.page-container,
+.site-wrapper {
     flex: 1;
 }
-.navbar{
-    
+
+/* Explicit Custom Site-Wrapper for Edge-to-Edge Airbnb Layout */
+.site-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 1128px) {
+    .site-wrapper {
+        padding-left: 40px !important;
+        padding-right: 40px !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    .site-wrapper {
+        padding-left: 60px !important;
+        padding-right: 60px !important;
+    }
+}
+
+.navbar {
     height: 5rem;
-    background-color: white ;
+    background-color: white;
 }
-.fa-airbnb{
-    color: #fe424d;
-    font-size: 2rem;
+
+.brand-icon {
+    color: #FF385C;
+    font-size: 1.5rem;
 }
-.nav-link{
+
+.nav-link {
     color: #222222 !important;
 }
-.f-info-links a{
+
+.f-info-links a {
     text-decoration: none;
     color: #222222;
 }
-.f-info-links a:hover{
-text-decoration: underline;
+
+.f-info-links a:hover {
+    text-decoration: underline;
 }
+
 .f-info-links,
 .f-info-socials,
-.f-info-brand{
+.f-info-brand {
     width: 100%;
-   align-items: center;
+    align-items: center;
     display: flex;
     justify-content: center;
-} 
-   
-
-.f-info-socials i{
-      font-size: 1.2rem;
-     margin-right: 0.5rem;
 }
-.f-info{
+
+.f-info-socials i {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.f-info {
     text-align: center;
     display: flex;
     height: 7rem;
     background-color: #ebebeb;
     flex-wrap: wrap;
     justify-content: center;
-    align-items:center ;
-   
+    align-items: center;
 }
-.listing-card{
+
+.listing-card {
     border: none !important;
     margin-bottom: 2rem;
-    
 }
-.card-img-top{
+
+.card-img-top {
     border-radius: 1rem !important;
     width: 100% !important;
     object-fit: cover !important;
 }
-.card-body{
+
+.card-body {
     padding: 0 !important;
 }
-.card-body p{
+
+.card-body p {
     font-weight: 400 !important;
 }
-.listing-link{
+
+.listing-link {
     text-decoration: none;
 }
-.card-img-overlay{
+
+.card-img-overlay {
     opacity: 0;
 }
-.card-img-overlay:hover{
+
+.card-img-overlay:hover {
     opacity: 0.2;
     background-color: white;
 }
 
-.add-btn{
+.add-btn {
     background-color: #fe424d !important;
     border: none !important;
 }
 
-.edit-btn{
+.edit-btn {
     background-color: #fe424d !important;
     border: none !important;
 }
-.show-img{
+
+.show-img {
     height: 30vh;
 }
-.btns{
+
+.btns {
     display: flex;
 }
-.show-card{
+
+.show-card {
     padding-left: 0;
     padding-right: 0;
 }
 
-#map{
+#map {
     height: 400px;
-    width:100vh;
+    width: 100vh;
 }
 
 @media (max-width: 768px) {
-  #map {
-    height: 250px;
-    width: 250px;
+    #map {
+        height: 250px;
+        width: 250px;
+    }
+}
+
+/* Airbnb Auth Modal Card Styles */
+.auth-page-wrapper {
+  background-color: #F7F7F7;
+  min-height: calc(100vh - 12rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  padding: 32px;
+  border: 1px solid #EBEBEB;
+}
+
+@media (max-width: 500px) {
+  .auth-card {
+    padding: 24px;
+    width: 92%;
   }
+}
+
+.auth-btn-primary {
+  background-color: #FF385C !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 14px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  width: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.auth-btn-primary:hover {
+  opacity: 0.95;
+  color: #ffffff !important;
+}
+
+.auth-btn-google {
+  background-color: #ffffff !important;
+  color: #222222 !important;
+  border: 1px solid #222222 !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.auth-input {
+  border-radius: 8px !important;
+  padding: 12px !important;
+  border: 1px solid #DDDDDD !important;
+  font-size: 0.95rem !important;
+}
+
+.auth-input:focus {
+  border-color: #222222 !important;
+  box-shadow: 0 0 0 1px #222222 !important;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #717171;
+  font-size: 0.85rem;
+  margin: 20px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #DDDDDD;
+}
+
+.auth-divider::before {
+  margin-right: 12px;
+}
+
+.auth-divider::after {
+  margin-left: 12px;
 }

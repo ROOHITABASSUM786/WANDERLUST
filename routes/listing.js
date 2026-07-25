@@ -14,6 +14,10 @@ router.route("/")
 
 router.get("/new", isLoggedIn, listingController.renderNewForm)
 
+router.get("/search", wrapAsync(listingController.searchListings))
+
+router.get("/favorites", wrapAsync(listingController.renderFavorites))
+
 router.route("/:id")
 .get( wrapAsync(listingController.showListingDetails))
 .put(isLoggedIn, isOwner,upload.single('listing[image]') ,validateListings, wrapAsync(listingController.updateListing))

@@ -9,6 +9,8 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js")
+const wrapAsync = require("./utils/wrapAsync.js");
+const listingController = require("./controller/listing.js");
 app.use(express.static(path.join(__dirname, "/public")))
 const listingsRouter=require("./routes/listing.js");
 const reviewsRouter=require("./routes/review.js")
@@ -19,25 +21,31 @@ const flash=require("connect-flash");
 const passport=require("passport");
 const localStrategy=require("passport-local");
 const User=require("./models/user.js");
-const dbUrl=process.env.ATLASDB_URL;
-const dns=require("dns");
-dns.setServers(["1.1.1.1","8.8.8.8"])
-main().then(() => {
-    console.log("connected to DB")
-}).catch((err) => {
-    console.log("not connected to DB",err)
-})
+let dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
+const localDbUrl = "mongodb://127.0.0.1:27017/wanderlust";
+
 async function main() {
-    await mongoose.connect(dbUrl)
+    try {
+        await mongoose.connect(dbUrl, { serverSelectionTimeoutMS: 3000 });
+        console.log("Connected to MongoDB Atlas");
+    } catch (err) {
+        console.log("Atlas DB connection failed, falling back to local MongoDB:", err.message);
+        dbUrl = localDbUrl;
+        await mongoose.connect(localDbUrl);
+        console.log("Connected to local MongoDB");
+    }
 }
+main().catch((err) => console.log("DB connection error:", err));
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 
 const store=MongoStore.create({
-    mongoUrl:dbUrl,
+    mongoUrl:localDbUrl,
     crypto:{
         secret:process.env.SECRET
     },
@@ -75,6 +83,10 @@ app.use((req,res,next)=>{
 
 app.use("/listings",listingsRouter);
 app.use("/listings/:id/reviews",reviewsRouter)
+app.get("/search", wrapAsync(listingController.searchListings));
+app.get("/ai-assistant", wrapAsync(listingController.renderAiPage));
+app.post("/ai-assistant/recommend", wrapAsync(listingController.processAiQuery));
+app.post("/api/ai-assistant", wrapAsync(listingController.processAiQuery));
 app.get("/", (req, res) => {
     res.redirect("/listings");
 });

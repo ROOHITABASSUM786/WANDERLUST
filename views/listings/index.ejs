@@ -3,28 +3,35 @@
     /* Wrapper for filters + toggle */
     #filters-wrapper {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 0 1rem;
+      width: 100%;
       margin-top: 2rem;
+      gap: 24px;
     }
 
     /* Filters container: horizontal scroll on small screens */
     #filters {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 2.2rem;
       overflow-x: auto;
       scrollbar-width: none;
       /* Firefox */
       -webkit-overflow-scrolling: touch;
-      width: 100%;
-  overflow-x: auto;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     #filters::-webkit-scrollbar {
       display: none;
       /* Chrome, Safari */
+    }
+
+    .filter-divider {
+      width: 1px;
+      height: 32px;
+      background-color: #DDDDDD;
+      flex-shrink: 0;
     }
 
     .filter {
@@ -52,182 +59,517 @@
 
 
     /* Responsive: stack toggle below filters on small screens */
-   @media (max-width: 600px) {
-  #filters-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
+    @media (max-width: 600px) {
+      #filters-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
 
-  #filters {
-    scroll-behavior: smooth;
-    padding: 0;
-    margin-bottom: 0.5rem;
-  }
+      #filters {
+        scroll-behavior: smooth;
+        padding: 0;
+        margin-bottom: 0.5rem;
+      }
 
-  .filter i {
-    font-size: 1.4rem;
-  }
+      .filter-divider {
+        display: none;
+      }
 
-  .filter p {
-    font-size: 0.75rem;
-  }
-}
-   
-    
+      .filter i {
+        font-size: 1.4rem;
+      }
+
+      .filter p {
+        font-size: 0.75rem;
+      }
+    }
+
+
 
     .tax-info {
       display: none;
     }
-    .tax-toggle{
-      margin-top: 0rem;
-      border: 1px solid black;
-      border-radius: 1rem;
-      height: 2.8rem;
-      padding: 1rem;
-      display: flex;
-      width: 300px;
-      align-items: center;
-    }
-    a.filter {
-  text-decoration: none;   /* remove underline */
-  color: inherit;          /* use same color as parent */
-}
 
-.explore-btn {
-  background-color: #fe424d;
-  color: #fff;
-  border-radius: 999px;
-  padding: 0.6rem 1.5rem;
-  text-decoration: none;
-}
+    .tax-toggle {
+      border: 1px solid #DDDDDD;
+      border-radius: 999px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+      font-size: 14px;
+      color: #222222;
+      white-space: nowrap;
+      width: auto;
+      height: auto;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .tax-toggle:hover {
+      border-color: #b0b0b0;
+    }
+
+    .tax-toggle .form-check-input {
+      width: 2.5em;
+      height: 1.4em;
+      cursor: pointer;
+      margin-top: 0;
+    }
+
+    .tax-toggle .form-check-input:checked {
+      background-color: #222222;
+      border-color: #222222;
+    }
+
+    .tax-toggle .form-check-label {
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+    }
+
+    a.filter {
+      text-decoration: none;
+      /* remove underline */
+      color: inherit;
+      /* use same color as parent */
+    }
+
+    .explore-btn {
+      background-color: #fe424d;
+      color: #fff;
+      border-radius: 999px;
+      padding: 0.6rem 1.5rem;
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+
+    /* 1. Grid Container (6 Columns on Desktop 1200px+) */
+    .listings-grid {
+      display: grid !important;
+      grid-template-columns: repeat(6, 1fr) !important;
+      gap: 16px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      margin-top: 1.5rem !important;
+    }
+
+    @media (max-width: 1200px) {
+      .listings-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .listings-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .listings-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .listings-grid {
+        grid-template-columns: repeat(1, 1fr) !important;
+      }
+    }
+
+    /* 2. Grid Item Sizing Safety Net (Prevents Cell Blowout) */
+    .listing-card-item {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    /* 20px Corner Rounding Clipping Container */
+    .card-image-wrapper {
+      width: 100% !important;
+      aspect-ratio: 1 / 1 !important;
+      height: auto !important;
+      position: relative !important;
+      overflow: hidden !important;
+      border-radius: 20px !important;
+      background: transparent !important;
+    }
+
+    .card-image-wrapper img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+
+    .card-title {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      font-size: 14px !important;
+      line-height: 1.3 !important;
+      margin-bottom: 0 !important;
+      color: #222222 !important;
+    }
+
+    .card-location {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      font-size: 13px !important;
+      color: #717171 !important;
+      margin-bottom: 0 !important;
+    }
+
+    .airbnb-heart-btn {
+      position: absolute !important;
+      top: 12px !important;
+      right: 12px !important;
+      background: transparent !important;
+      border: none !important;
+      z-index: 5 !important;
+      padding: 0 !important;
+      cursor: pointer !important;
+      transition: transform 0.2s ease !important;
+    }
+
+    .airbnb-heart-btn:active {
+      transform: scale(1.15) !important;
+    }
+
+    .guest-favourite-badge {
+      position: absolute !important;
+      top: 12px !important;
+      left: 12px !important;
+      background: white !important;
+      color: #222222 !important;
+      padding: 4px 12px !important;
+      border-radius: 20px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+      z-index: 5 !important;
+    }
+
+    /* Hero Banner Styles */
+    .hero-banner {
+      height: 260px;
+      position: relative;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    @media (max-width: 768px) {
+      .hero-banner {
+        height: 200px;
+      }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.45) 100%);
+      border-radius: inherit;
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #ffffff;
+      width: 100%;
+      padding: 0 20px;
+      z-index: 2;
+    }
+
+    .hero-banner h1 {
+      font-size: clamp(24px, 3.8vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-banner p {
+      font-size: clamp(14px, 1.5vw, 18px);
+      font-weight: 400;
+      margin-bottom: 0;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
   </style>
 
-  <div id="filters-wrapper">
+  <!-- Hero Image Banner -->
+  <div class="container-fluid site-wrapper mb-4 mt-3">
+    <div class="hero-banner">
+      <img src="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?auto=format&fit=crop&w=1600&q=80"
+        class="w-100 h-100 object-fit-cover" alt="Wanderlust Coastal Banner">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1>Wanderlust: Find your next adventure</h1>
+        <p>Discover handpicked luxury stays around the globe.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid site-wrapper" id="filters-wrapper">
     <div id="filters">
 
 
-  <a href="/listings" class="filter">
-    <div><i class="fa-solid fa-fire"></i></div>
-    <p>Trending</p>
-  </a>
+      <a href="/listings" class="filter">
+        <div><i class="fa-solid fa-fire"></i></div>
+        <p>Trending</p>
+      </a>
 
-  <a href="/listings?category=rooms" class="filter">
-    <div><i class="fa-solid fa-bed"></i></div>
-    <p>Rooms</p>
-  </a>
+      <a href="/listings?category=rooms" class="filter">
+        <div><i class="fa-solid fa-bed"></i></div>
+        <p>Rooms</p>
+      </a>
 
-  <a href="/listings?category=iconic_cities" class="filter">
-    <div><i class="fa-solid fa-city"></i></div>
-    <p>Iconic cities</p>
-  </a>
+      <a href="/listings?category=iconic_cities" class="filter">
+        <div><i class="fa-solid fa-city"></i></div>
+        <p>Iconic cities</p>
+      </a>
 
-  <a href="/listings?category=mountains" class="filter">
-    <div><i class="fa-solid fa-mountain"></i></div>
-    <p>Mountains</p>
-  </a>
+      <a href="/listings?category=mountains" class="filter">
+        <div><i class="fa-solid fa-mountain"></i></div>
+        <p>Mountains</p>
+      </a>
 
-  <a href="/listings?category=castles" class="filter">
-    <div><i class="fa-brands fa-fort-awesome"></i></div>
-    <p>Castles</p>
-  </a>
+      <a href="/listings?category=castles" class="filter">
+        <div><i class="fa-brands fa-fort-awesome"></i></div>
+        <p>Castles</p>
+      </a>
 
-  <a href="/listings?category=amazing_pools" class="filter">
-    <div><i class="fa-solid fa-person-swimming"></i></div>
-    <p>Amazing pools</p>
-  </a>
+      <a href="/listings?category=amazing_pools" class="filter">
+        <div><i class="fa-solid fa-person-swimming"></i></div>
+        <p>Amazing pools</p>
+      </a>
 
-  <a href="/listings?category=camping" class="filter">
-    <div><i class="fa-solid fa-campground"></i></div>
-    <p>Camping</p>
-  </a>
+      <a href="/listings?category=camping" class="filter">
+        <div><i class="fa-solid fa-campground"></i></div>
+        <p>Camping</p>
+      </a>
 
-  <a href="/listings?category=farms" class="filter">
-    <div><i class="fa-solid fa-cow"></i></div>
-    <p>Farms</p>
-  </a>
+      <a href="/listings?category=farms" class="filter">
+        <div><i class="fa-solid fa-cow"></i></div>
+        <p>Farms</p>
+      </a>
 
-  <a href="/listings?category=arctic" class="filter">
-    <div><i class="fa-regular fa-snowflake"></i></div>
-    <p>Arctic</p>
-  </a>
+      <a href="/listings?category=arctic" class="filter">
+        <div><i class="fa-regular fa-snowflake"></i></div>
+        <p>Arctic</p>
+      </a>
 
-  <a href="/listings?category=domes" class="filter">
-    <div><i class="fa-solid fa-landmark-dome"></i></div>
-    <p>Domes</p>
-  </a>
+      <a href="/listings?category=domes" class="filter">
+        <div><i class="fa-solid fa-landmark-dome"></i></div>
+        <p>Domes</p>
+      </a>
 
-  <a href="/listings?category=boats" class="filter">
-    <div><i class="fa-solid fa-ship"></i></div>
-    <p>Boats</p>
-  </a>
+      <a href="/listings?category=boats" class="filter">
+        <div><i class="fa-solid fa-ship"></i></div>
+        <p>Boats</p>
+      </a>
 
-</div>
+    </div>
+
+    <div class="filter-divider"></div>
+
     <div class="tax-toggle">
-      <div class="form-check form-switch">
+      <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
         <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckdefault" />
         <label class="form-check-label" for="flexSwitchCheckdefault">Display total after taxes</label>
       </div>
-  
-  </div>
-    
+    </div>
   </div>
 
-  <% if(allListings.length === 0) { %>
+  <% if(allListings.length===0) { %>
 
-<div class="text-center  empty-state">
-  <div style="font-size: 2rem;">✨</div>
-  
-  <h4 class="mt-2"><i>No stays here yet</i></h4>
-  
-  <p class="text-muted">
-    Try exploring other places — you might find something you love!
-  </p>
+    <div class="text-center empty-state">
 
-  <a href="/listings" class="explore-btn mt-3">
-  Explore all stays
-</a>
-</div>
 
-<% } else { %>
+      <h4 class="mt-5"><i>✨No stays here yet</i></h4>
 
-  <div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1 mt-3">
-    <% for(let listing of allListings) { %>
+      <p class="text-muted">
+        Try exploring other places — you might find something you love!
+      </p>
 
-      <a href="/listings/<%=listing._id%>" class="listing-link">
-        <div class="card col listing-card">
-          <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
-          <div class="card-img-overlay"></div>
-          <div class="card-body">
-            <p class="card-text">
-              <b><%= listing.title %></b><br>
-              &#8377;<%= listing.price.toLocaleString("en-IN") %> / night
-              <i class="tax-info">&nbsp; +18% GST</i>
-            </p>
-          </div>
-        </div>
+      <a href="/listings" class="explore-btn  mb-5">
+        Explore all stays
       </a>
+    </div>
 
-    <% } %>
-  </div>
+    <% } else { %>
 
-<% } %>
+      <!-- Responsive 6-Column Airbnb Grid (gap 20px) -->
+      <div class="container-fluid site-wrapper listings-grid" id="listings-grid">
+        <% for(let listing of allListings) { const hasReviews=typeof listing.reviewCount==='number' &&
+          listing.reviewCount> 0;
+          const avgRating = hasReviews ? listing.avgRating : null;
+          const reviewCount = hasReviews ? listing.reviewCount : 0;
+          const isGuestFav = hasReviews && avgRating >= 4.8 && reviewCount >= 3;
+          %>
+          <div class="listing-card-item" data-listing-id="<%= listing._id %>">
+            <a href="/listings/<%= listing._id %>" class="text-decoration-none">
+              <div class="card border-0 bg-transparent position-relative h-100">
 
+                <!-- 16px Rounded Image Wrapper Container -->
+                <div class="card-image-wrapper">
+                  <img src="<%= listing.image.url %>" alt="<%= listing.title %>">
 
+                  <!-- Selective Guest Favourite Badge -->
+                  <% if (isGuestFav) { %>
+                    <span class="guest-favourite-badge">Guest favourite</span>
+                    <% } %>
 
-  <script>
-    let taxSwitch = document.getElementById("flexSwitchCheckdefault");
-    taxSwitch.addEventListener("click", () => {
-      let taxInfo = document.getElementsByClassName("tax-info");
-      for (info of taxInfo) {
-        if (info.style.display != "inline"){
-          info.style.display = "inline";
+                      <!-- Small, Borderless Transparent Heart Button -->
+                      <button class="airbnb-heart-btn" type="button" data-id="<%= listing._id %>"
+                        onclick="toggleFavorite(event, '<%= listing._id %>')">
+                        <i class="bi bi-heart text-white fs-5"
+                          style="filter: drop-shadow(0px 1px 3px rgba(0,0,0,0.8));"></i>
+                      </button>
+                </div>
 
-        }
-         else {
-        info.style.display = "none";
-      }
-      }
-     
-    })
-  </script>
+                <!-- Airbnb Typography Row (Top-Aligned Flex) -->
+                <div class="card-body p-0 mt-2 d-flex justify-content-between align-items-start">
+                  <div class="pe-2 text-truncate" style="min-width: 0;">
+                    <p class="fw-bold card-title">
+                      <%= listing.title %>
+                    </p>
+                    <p class="card-location">
+                      <%= listing.location %>, <%= listing.country %>
+                    </p>
+                    <p class="text-dark fw-bold mt-1 mb-0" style="font-size: 14px;">&#8377;<%=
+                        listing.price.toLocaleString("en-IN") %> <span class="text-secondary fw-normal">/ night</span>
+                        <i class="tax-info text-muted small fw-normal">&nbsp; +18% GST</i></p>
+                  </div>
+                  <% if (hasReviews && avgRating !==null) { %>
+                    <span class="text-dark fw-normal d-flex align-items-center mt-1"
+                      style="font-size: 13px; flex-shrink: 0;">
+                      <i class="bi bi-star-fill text-dark me-1 small" style="font-size: 12px;"></i>
+                      <%= avgRating.toFixed(1) %> <span class="ms-1" style="color: #717171;">(<%= reviewCount %>)</span>
+                    </span>
+                    <% } else { %>
+                      <span class="text-secondary fw-normal d-flex align-items-center mt-1"
+                        style="font-size: 13px; flex-shrink: 0;">
+                        <i class="bi bi-star text-muted me-1 small" style="font-size: 12px;"></i> <span
+                          class="fw-semibold text-dark">New</span>
+                      </span>
+                      <% } %>
+                </div>
+
+              </div>
+            </a>
+          </div>
+          <% } %>
+      </div>
+
+      <% } %>
+
+        <script>
+          window.isFavoritesPage = <%= typeof isFavoritesPage !== 'undefined' && isFavoritesPage ? 'true' : 'false' %>;
+
+          function getFavorites() {
+            return JSON.parse(localStorage.getItem('wanderlust_favorites') || '[]');
+          }
+
+          function saveFavorites(favs) {
+            localStorage.setItem('wanderlust_favorites', JSON.stringify(favs));
+          }
+
+          function toggleFavorite(event, listingId) {
+            event.preventDefault();
+            event.stopPropagation();
+            let favs = getFavorites();
+            const index = favs.indexOf(listingId);
+            if (index === -1) {
+              favs.push(listingId);
+            } else {
+              favs.splice(index, 1);
+            }
+            saveFavorites(favs);
+            updateHeartIcons();
+            if (window.isFavoritesPage) {
+              filterFavoritesPage();
+            }
+          }
+
+          function updateHeartIcons() {
+            const favs = getFavorites();
+            document.querySelectorAll('.airbnb-heart-btn').forEach(btn => {
+              const id = btn.getAttribute('data-id');
+              const icon = btn.querySelector('i');
+              if (favs.includes(id)) {
+                icon.className = 'bi bi-heart-fill fs-5';
+                icon.style.color = '#FF385C';
+                icon.style.filter = 'drop-shadow(0px 1px 3px rgba(0,0,0,0.3))';
+              } else {
+                icon.className = 'bi bi-heart fs-5';
+                icon.style.color = '#ffffff';
+                icon.style.filter = 'drop-shadow(0px 1px 3px rgba(0,0,0,0.8))';
+              }
+            });
+          }
+
+          function filterFavoritesPage() {
+            const favs = getFavorites();
+            const items = document.querySelectorAll('.listing-card-item');
+            let visibleCount = 0;
+            items.forEach(item => {
+              const id = item.getAttribute('data-listing-id');
+              if (favs.includes(id)) {
+                item.style.display = 'block';
+                visibleCount++;
+              } else {
+                item.style.display = 'none';
+              }
+            });
+
+            let emptyState = document.getElementById('favorites-empty-state');
+            if (visibleCount === 0) {
+              if (!emptyState) {
+                const grid = document.getElementById('listings-grid');
+                emptyState = document.createElement('div');
+                emptyState.id = 'favorites-empty-state';
+                emptyState.className = 'text-center py-5 w-100 my-4';
+                emptyState.innerHTML = '<div style="font-size: 2.5rem;">❤️</div><h4 class="mt-3 fw-bold text-dark">No favorite stays saved yet</h4><p class="text-muted">Click the heart icon on any stay to save it here!</p><a href="/listings" class="btn btn-danger rounded-pill px-4 mt-2" style="background-color: #FF385C;">Explore stays</a>';
+                if (grid) {
+                  grid.parentNode.insertBefore(emptyState, grid);
+                }
+              } else {
+                emptyState.style.display = 'block';
+              }
+            } else if (emptyState) {
+              emptyState.style.display = 'none';
+            }
+          }
+
+          let taxSwitch = document.getElementById("flexSwitchCheckdefault");
+          if (taxSwitch) {
+            taxSwitch.addEventListener("click", () => {
+              let taxInfo = document.getElementsByClassName("tax-info");
+              for (info of taxInfo) {
+                if (info.style.display != "inline") {
+                  info.style.display = "inline";
+                } else {
+                  info.style.display = "none";
+                }
+              }
+            });
+          }
+
+          document.addEventListener('DOMContentLoaded', () => {
+            updateHeartIcons();
+            if (window.isFavoritesPage) {
+              filterFavoritesPage();
+            }
+          });
+        </script>
