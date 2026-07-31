@@ -44,12 +44,14 @@
   }
 </style>
 
-<div class="offcanvas offcanvas-end border-0 shadow-lg" tabindex="-1" id="aiOffcanvas" aria-labelledby="aiOffcanvasLabel" style="width: 460px; max-width: 90vw; background-color: #F9F9F9;">
-  
+<div class="offcanvas offcanvas-end border-0 shadow-lg" tabindex="-1" id="aiOffcanvas"
+  aria-labelledby="aiOffcanvasLabel" style="width: 460px; max-width: 90vw; background-color: #F9F9F9;">
+
   <!-- Offcanvas Header -->
   <div class="offcanvas-header border-bottom bg-white px-4 py-3">
     <div class="d-flex align-items-center gap-2">
-      <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 38px; height: 38px; background-color: #FF385C;">
+      <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
+        style="width: 38px; height: 38px; background-color: #FF385C;">
         <i class="bi bi-sparkles fs-5"></i>
       </div>
       <div>
@@ -61,16 +63,18 @@
   </div>
 
   <!-- Scrollable Chat History Area -->
-  <div class="offcanvas-body p-4 d-flex flex-column" id="chat-history" style="overflow-y: auto; scroll-behavior: smooth;">
-    
+  <div class="offcanvas-body p-4 d-flex flex-column" id="chat-history"
+    style="overflow-y: auto; scroll-behavior: smooth;">
+
     <!-- Welcome AI Bubble -->
     <div class="p-3 bg-white border border-light rounded-4 mb-3 float-start clear-both w-100 shadow-sm">
       <div class="fw-semibold text-dark mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-robot" style="color: #FF385C;"></i> Wanderlust AI
       </div>
       <p class="mb-0 text-secondary" style="color: #222222; font-size: 0.95rem; line-height: 1.55;">
-        Hello! I'm your Wanderlust travel companion. Ask me anything—custom trip itineraries, local hidden gems, flight advice, or destination tips!
-      </p>
+        "Hello! I'm Roohi's Wanderlust travel companion. Ask me anything—custom trip itineraries, local hidden gems,
+        flight advice, or destination tips!"
+
     </div>
 
   </div>
@@ -78,8 +82,13 @@
   <!-- Fixed Bottom Input Container -->
   <div class="p-3 bg-white border-top">
     <div class="position-relative">
-      <input type="text" id="chat-drawer-input" class="form-control rounded-pill border shadow-sm px-4 py-3 bg-white w-100" placeholder="Ask Wanderlust AI anything..." style="padding-right: 55px !important; font-size: 0.95rem; color: #222222;" />
-      <button type="button" id="chat-drawer-send-btn" class="btn p-0 border-0 position-absolute end-0 top-50 translate-middle-y me-3" style="color: #FF385C; background: transparent;" onclick="sendDrawerChatMessage()">
+      <input type="text" id="chat-drawer-input"
+        class="form-control rounded-pill border shadow-sm px-4 py-3 bg-white w-100"
+        placeholder="Ask Wanderlust AI anything..."
+        style="padding-right: 55px !important; font-size: 0.95rem; color: #222222;" />
+      <button type="button" id="chat-drawer-send-btn"
+        class="btn p-0 border-0 position-absolute end-0 top-50 translate-middle-y me-3"
+        style="color: #FF385C; background: transparent;" onclick="sendDrawerChatMessage()">
         <i class="bi bi-send-fill fs-5"></i>
       </button>
     </div>
