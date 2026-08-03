@@ -1,9 +1,6 @@
 const Listing=require("../models/listing")
 const { GoogleGenAI } = require("@google/genai");
 
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-const mapToken=process.env.MAP_TOKEN;
-const geocodingClient = mbxGeocoding({ accessToken: mapToken});
 const axios = require("axios");
 const formatListingRatings = (listings) => {
     return listings.map(listing => {
@@ -47,25 +44,38 @@ module.exports.showListingDetails=async (req, res) => {
     }
     res.render("listings/show.ejs", { listing })
 }
-module.exports.createNewListing=async (req, res, next) => {
- let response= await geocodingClient
- .forwardGeocode({
-  query: req.body.listing.location,
-  limit: 1
-})
-  .send()
-   let url= req.file.path;
-   let filename=req.file.filename;
+module.exports.createNewListing = async (req, res, next) => {
+    let url = req.file.path;
+    let filename = req.file.filename;
     const newListing = new Listing(req.body.listing);
     newListing.owner = req.user._id;
-   newListing.image={url,filename};
-   newListing.geometry=response.body.features[0].geometry;
-   let savedListings= await newListing.save();
-   console.log(savedListings)
+    newListing.image = { url, filename };
+
+    // Free OpenStreetMap Geocoding via Nominatim API
+    const locationQuery = req.body.listing.location;
+    let geometry = { type: "Point", coordinates: [77.2090, 28.6139] }; // Default fallback coordinates
+
+    try {
+        const geoResponse = await axios.get("https://nominatim.openstreetmap.org/search", {
+            params: { q: locationQuery, format: "json", limit: 1 },
+            headers: { "User-Agent": "WanderlustApp" }
+        });
+
+        if (geoResponse.data && geoResponse.data.length > 0) {
+            const lat = parseFloat(geoResponse.data[0].lat);
+            const lon = parseFloat(geoResponse.data[0].lon);
+            geometry = { type: "Point", coordinates: [lon, lat] }; // GeoJSON format: [longitude, latitude]
+        }
+    } catch (err) {
+        console.log("Geocoding Error:", err.message);
+    }
+
+    newListing.geometry = geometry;
+    let savedListings = await newListing.save();
+    console.log(savedListings);
     req.flash("success", "New Listing Created");
     res.redirect("/listings");
-
-}
+};
 module.exports.renderEditForm=async (req, res) => {
     let { id } = req.params;
     const listing = await Listing.findById(id);

@@ -1,17 +1,20 @@
+if (typeof listing !== "undefined" && listing && listing.geometry && listing.geometry.coordinates && listing.geometry.coordinates.length === 2) {
+    // GeoJSON format in MongoDB stores coordinates as [longitude, latitude]
+    // Leaflet requires [latitude, longitude], so we extract longitude (index 0) and latitude (index 1):
+    const lng = listing.geometry.coordinates[0];
+    const lat = listing.geometry.coordinates[1];
 
-    mapboxgl.accessToken = mapToken;
-    console.log(mapToken)
-    const map = new mapboxgl.Map({
-        container: 'map', // container ID
-        center: listing.geometry.coordinates, // starting position [lng, lat]. Note that lat must be set between -90 and 90
-        zoom: 9 // starting zoom
-    });
-    
- const marker = new mapboxgl.Marker({color:"red"})
-        .setLngLat(listing.geometry.coordinates)
-        .setPopup(new mapboxgl.Popup({offset: 25})
-    
-    .setHTML(`<h4>${listing.location}</h4><p>Exact location provided after booking</>`)
-    .setMaxWidth("300px")
-    .addTo(map))
-        .addTo(map);
+    // Initialize Leaflet map centered at [lat, lng] with zoom level 9
+    const map = L.map('map').setView([lat, lng], 9);
+
+    // Add OpenStreetMap free tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add marker at listing location with popup
+    L.marker([lat, lng]).addTo(map)
+        .bindPopup(`<h4>${listing.location}</h4><p>Exact location provided after booking</p>`)
+        .openPopup();
+}
