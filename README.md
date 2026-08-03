@@ -2,7 +2,7 @@
 
 An Airbnb-inspired full-stack web app to discover and list unique travel stays — from mountain cabins to arctic domes.
 
-🔗 **Live Demo:** https://wanderlust-bii0.onrender.com/listings
+🔗 **Live Demo:** https://wanderlust-x9aa.onrender.com/listings
 
 ---
 
@@ -12,7 +12,7 @@ An Airbnb-inspired full-stack web app to discover and list unique travel stays �
 - 🏠 Full CRUD on Listings — Create, edit, and delete your stays
 - 🗂️ Category Filters — Rooms, Mountains, Castles, Camping, Arctic, Domes, Boats & more
 - ⭐ Reviews — Authenticated users can post and delete reviews
-- 🗺️ Interactive Maps — Listing locations powered by Mapbox
+- 🗺️ Interactive Maps — Listing locations powered by OpenStreetMap
 - ☁️ Image Uploads — Stored and served via Cloudinary
 - 💰 GST Display — Toggle to show total price with 18% GST
 - 📱 Responsive UI — Built with Bootstrap 5
@@ -28,7 +28,7 @@ An Airbnb-inspired full-stack web app to discover and list unique travel stays �
 | Database | MongoDB, Mongoose |
 | Authentication | Passport.js |
 | Image Storage | Cloudinary, Multer |
-| Maps | Mapbox GL JS |
+| Maps |OpenStreetMap,Leaflet |
 | Sessions | express-session, connect-mongo |
 | Deployment | Render |
 
@@ -57,7 +57,7 @@ SECRET=your_session_secret
 CLOUD_NAME=your_cloudinary_cloud_name
 CLOUD_API_KEY=your_cloudinary_api_key
 CLOUD_API_SECRET=your_cloudinary_api_secret
-MAP_TOKEN=your_mapbox_token
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ---
