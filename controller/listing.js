@@ -137,20 +137,58 @@ module.exports.processAiQuery = async (req, res) => {
         return res.json({ text: "Please enter a travel question or topic!" });
     }
 
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || !apiKey.trim()) {
+        return res.json({ text: "GEMINI_API_KEY is missing in your `.env` file." });
+    }
+
     try {
-        const apiKey = process.env.GEMINI_API_KEY;
-        const ai = new GoogleGenAI({ apiKey: apiKey || "" });
-        const response = await ai.models.generateContent({
-            model: 'gemini-3.6-flash',
-            contents: userPrompt,
-            config: {
-                systemInstruction: "You are the Wanderlust AI Assistant. Do not filter internal website data. Instead, answer all general travel questions, create custom itineraries, provide destination advice, and chat dynamically. Format your entire answer in beautiful, clean Markdown."
+        // Step 1: Fetch live property listings from MongoDB database
+        const allListings = await Listing.find({}).populate("reviews");
+
+        // Step 2: Format the listings into a clean text context for Gemini (RAG pattern)
+        const databaseContext = allListings.map(item => {
+            const avgRating = item.reviews && item.reviews.length 
+                ? (item.reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / item.reviews.length).toFixed(1)
+                : "No reviews yet";
+            return `- Title: "${item.title}" | Link: /listings/${item._id} | Location: ${item.location}, ${item.country} | Price: $${item.price} | Category: ${item.category} | Rating: ${avgRating}/5`;
+        }).join("\n");
+
+        // Step 3: Create System Instruction with live Database Context
+        const systemInstruction = `You are the official AI Assistant for the Wanderlust travel booking website.
+You have real-time access to our live MongoDB property listings:
+
+${databaseContext}
+
+CRITICAL INSTRUCTIONS:
+1. Whenever you mention, suggest, or list a property, you MUST format its title as a Markdown link using its exact Link URL provided above. Example: [Property Title](/listings/12345).
+2. NEVER output property titles as plain text. Always make the title a clickable link [Title](/listings/ID).
+3. Answer general travel questions dynamically with helpful advice and custom itineraries.
+4. Format your entire response in clean, beautiful Markdown.`;
+
+        // Step 4: Call Gemini AI Model with fallback candidates
+        const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
+        const candidateModels = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+
+        for (const modelName of candidateModels) {
+            try {
+                const response = await ai.models.generateContent({
+                    model: modelName,
+                    contents: userPrompt,
+                    config: { systemInstruction }
+                });
+                if (response && response.text) {
+                    return res.json({ text: response.text });
+                }
+            } catch (err) {
+                console.warn(`Model ${modelName} failed, trying next fallback...`);
             }
-        });
-        res.json({ text: response.text });
+        }
+
+        return res.json({ text: "Google Gen AI is currently busy. Please try again in a moment!" });
     } catch (err) {
-        console.error("Gemini AI Error:", err);
-        res.json({ text: "I'm having trouble connecting to Google Gen AI. Please verify your `GEMINI_API_KEY` in `.env`." });
+        console.error("Gemini AI General Error:", err);
+        return res.json({ text: "An error occurred while connecting to Wanderlust AI." });
     }
 };
 
