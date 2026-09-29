@@ -131,6 +131,29 @@ module.exports.renderAiPage = async (req, res) => {
     res.render("ai.ejs", { featuredListings });
 };
 
+// In-memory cache for ultra-fast RAG database context
+let cachedDatabaseContext = null;
+let lastContextCacheTime = 0;
+
+async function getFastDatabaseContext() {
+    const NOW = Date.now();
+    // Use cached database context for 60 seconds to eliminate repeated DB round-trips
+    if (cachedDatabaseContext && (NOW - lastContextCacheTime < 60000)) {
+        return cachedDatabaseContext;
+    }
+
+    const listings = await Listing.find({})
+        .select("title location country price category _id")
+        .lean();
+
+    cachedDatabaseContext = listings.map(item => 
+        `- Title: "${item.title}" | Link: /listings/${item._id} | Location: ${item.location}, ${item.country} | Price: $${item.price} | Category: ${item.category}`
+    ).join("\n");
+
+    lastContextCacheTime = NOW;
+    return cachedDatabaseContext;
+}
+
 module.exports.processAiQuery = async (req, res) => {
     const userPrompt = req.body.prompt;
     if (!userPrompt || !userPrompt.trim()) {
@@ -139,22 +162,14 @@ module.exports.processAiQuery = async (req, res) => {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey || !apiKey.trim()) {
-        return res.json({ text: "GEMINI_API_KEY is missing in your `.env` file." });
+        return res.json({ text: "GEMINI_API_KEY is missing in your `.env` file or environment variables." });
     }
 
     try {
-        // Step 1: Fetch live property listings from MongoDB database
-        const allListings = await Listing.find({}).populate("reviews");
+        // Fetch ultra-fast cached database context (0ms latency on repeated queries)
+        const databaseContext = await getFastDatabaseContext();
 
-        // Step 2: Format the listings into a clean text context for Gemini (RAG pattern)
-        const databaseContext = allListings.map(item => {
-            const avgRating = item.reviews && item.reviews.length 
-                ? (item.reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / item.reviews.length).toFixed(1)
-                : "No reviews yet";
-            return `- Title: "${item.title}" | Link: /listings/${item._id} | Location: ${item.location}, ${item.country} | Price: $${item.price} | Category: ${item.category} | Rating: ${avgRating}/5`;
-        }).join("\n");
-
-        // Step 3: Create System Instruction with live Database Context
+        // System Instruction with live Database Context
         const systemInstruction = `You are the official AI Assistant for the Wanderlust travel booking website.
 You have real-time access to our live MongoDB property listings:
 
@@ -166,26 +181,37 @@ CRITICAL INSTRUCTIONS:
 3. Answer general travel questions dynamically with helpful advice and custom itineraries.
 4. Format your entire response in clean, beautiful Markdown.`;
 
-        // Step 4: Call Gemini AI Model with fallback candidates
+        // Call Gemini AI Model with fallback candidates and 1-sec auto-retry
         const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-        const candidateModels = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+        const candidateModels = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
 
         for (const modelName of candidateModels) {
-            try {
-                const response = await ai.models.generateContent({
-                    model: modelName,
-                    contents: userPrompt,
-                    config: { systemInstruction }
-                });
-                if (response && response.text) {
-                    return res.json({ text: response.text });
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    const response = await ai.models.generateContent({
+                        model: modelName,
+                        contents: userPrompt,
+                        config: { 
+                            systemInstruction,
+                            maxOutputTokens: 600
+                        }
+                    });
+                    if (response && response.text) {
+                        return res.json({ text: response.text });
+                    }
+                } catch (err) {
+                    console.warn(`Model ${modelName} attempt ${attempt} failed:`, err.message || err);
+                    const status = err.status || (err.error && err.error.code);
+                    if ((status === 429 || status === 503) && attempt === 1) {
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        continue;
+                    }
+                    break;
                 }
-            } catch (err) {
-                console.warn(`Model ${modelName} failed, trying next fallback...`);
             }
         }
 
-        return res.json({ text: "Google Gen AI is currently busy. Please try again in a moment!" });
+        return res.json({ text: "Google Gen AI is currently busy due to rate limits. Please wait 5 seconds and try again!" });
     } catch (err) {
         console.error("Gemini AI General Error:", err);
         return res.json({ text: "An error occurred while connecting to Wanderlust AI." });
