@@ -154,6 +154,18 @@ async function getFastDatabaseContext() {
     return cachedDatabaseContext;
 }
 
+// Helper function to check if the prompt requires database property context
+const requiresDatabaseContext = (text) => {
+    const propertyKeywords = [
+        'place', 'stay', 'property', 'hotel', 'villa', 'chalet', 'room', 'house', 'loft',
+        'under', 'budget', 'price', 'dollar', '$', 'cost', 'cheap', 'expensive',
+        'recommend', 'where', 'destination', 'location', 'view', 'pool', 'castle',
+        'mountain', 'beach', 'city', 'snow', 'summer', 'winter', 'farm', 'arctic', 'boat'
+    ];
+    const lower = text.toLowerCase();
+    return propertyKeywords.some(kw => lower.includes(kw));
+};
+
 module.exports.processAiQuery = async (req, res) => {
     const userPrompt = req.body.prompt;
     if (!userPrompt || !userPrompt.trim()) {
@@ -166,19 +178,24 @@ module.exports.processAiQuery = async (req, res) => {
     }
 
     try {
-        // Fetch ultra-fast cached database context (0ms latency on repeated queries)
-        const databaseContext = await getFastDatabaseContext();
+        let systemInstruction = "";
 
-        // System Instruction with live Database Context
-        const systemInstruction = `You are Wanderlust AI, an expert travel companion for the Wanderlust property booking platform.
+        if (requiresDatabaseContext(userPrompt)) {
+            // RAG Query: Attach MongoDB property listings context for property searches
+            const databaseContext = await getFastDatabaseContext();
+            systemInstruction = `You are Wanderlust AI, an expert travel companion for the Wanderlust property booking platform.
 
 Here are the live available property listings from our Wanderlust database:
 ${databaseContext}
 
 Role & Output Guidelines:
-- Help users explore destinations, answer general travel questions, and create custom itineraries.
+- Help users explore destinations, answer travel questions, and recommend stays.
 - When recommending any property from our collection, always format its title as a Markdown link using its exact relative link provided above (e.g. [Property Title](/listings/12345)).
 - Present your answer in clean, well-structured Markdown with emojis and clear headings.`;
+        } else {
+            // General Chat Query: Lightweight instruction for blazing-fast 0.2s response
+            systemInstruction = `You are Wanderlust AI, a friendly, concise travel companion for the Wanderlust web application. Answer user greetings, general chat, and general travel advice quickly, warmly, and concisely in clean Markdown.`;
+        }
 
         // Call Gemini AI Model with fallback candidates and auto-retry
         const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
