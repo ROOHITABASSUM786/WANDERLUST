@@ -199,7 +199,7 @@ Role & Output Guidelines:
 
         // Call Gemini AI Model with fallback candidates and auto-retry
         const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-        const candidateModels = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+        const candidateModels = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-1.5-flash-latest', 'gemini-2.5-pro'];
 
         for (const modelName of candidateModels) {
             for (let attempt = 1; attempt <= 3; attempt++) {
@@ -218,9 +218,13 @@ Role & Output Guidelines:
                 } catch (err) {
                     console.warn(`Model ${modelName} attempt ${attempt} failed:`, err.message || err);
                     const status = err.status || (err.error && err.error.code);
+                    // If model not found (404), break immediately to try the next model candidate
+                    if (status === 404) {
+                        break;
+                    }
                     // If rate limit (429) or high demand (503), wait with exponential backoff before retrying
                     if ((status === 429 || status === 503) && attempt < 3) {
-                        const delay = attempt * 800; // 800ms, then 1600ms
+                        const delay = attempt * 800;
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
