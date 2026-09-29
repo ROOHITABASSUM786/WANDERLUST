@@ -170,30 +170,29 @@ module.exports.processAiQuery = async (req, res) => {
         const databaseContext = await getFastDatabaseContext();
 
         // System Instruction with live Database Context
-        const systemInstruction = `You are the official AI Assistant for the Wanderlust travel booking website.
-You have real-time access to our live MongoDB property listings:
+        const systemInstruction = `You are Wanderlust AI, an expert travel companion for the Wanderlust property booking platform.
 
+Here are the live available property listings from our Wanderlust database:
 ${databaseContext}
 
-CRITICAL INSTRUCTIONS:
-1. Whenever you mention, suggest, or list a property, you MUST format its title as a Markdown link using its exact Link URL provided above. Example: [Property Title](/listings/12345).
-2. NEVER output property titles as plain text. Always make the title a clickable link [Title](/listings/ID).
-3. Answer general travel questions dynamically with helpful advice and custom itineraries.
-4. Format your entire response in clean, beautiful Markdown.`;
+Role & Output Guidelines:
+- Help users explore destinations, answer general travel questions, and create custom itineraries.
+- When recommending any property from our collection, always format its title as a Markdown link using its exact relative link provided above (e.g. [Property Title](/listings/12345)).
+- Present your answer in clean, well-structured Markdown with emojis and clear headings.`;
 
-        // Call Gemini AI Model with fallback candidates and 1-sec auto-retry
+        // Call Gemini AI Model with fallback candidates and auto-retry
         const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
         const candidateModels = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
 
         for (const modelName of candidateModels) {
-            for (let attempt = 1; attempt <= 2; attempt++) {
+            for (let attempt = 1; attempt <= 3; attempt++) {
                 try {
                     const response = await ai.models.generateContent({
                         model: modelName,
                         contents: userPrompt,
                         config: { 
                             systemInstruction,
-                            maxOutputTokens: 600
+                            maxOutputTokens: 700
                         }
                     });
                     if (response && response.text) {
@@ -202,8 +201,10 @@ CRITICAL INSTRUCTIONS:
                 } catch (err) {
                     console.warn(`Model ${modelName} attempt ${attempt} failed:`, err.message || err);
                     const status = err.status || (err.error && err.error.code);
-                    if ((status === 429 || status === 503) && attempt === 1) {
-                        await new Promise(resolve => setTimeout(resolve, 800));
+                    // If rate limit (429) or high demand (503), wait with exponential backoff before retrying
+                    if ((status === 429 || status === 503) && attempt < 3) {
+                        const delay = attempt * 800; // 800ms, then 1600ms
+                        await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
                     break;
@@ -211,7 +212,7 @@ CRITICAL INSTRUCTIONS:
             }
         }
 
-        return res.json({ text: "Google Gen AI is currently busy due to rate limits. Please wait 5 seconds and try again!" });
+        return res.json({ text: "Google Gen AI is currently processing high traffic. Please wait a few seconds and try again!" });
     } catch (err) {
         console.error("Gemini AI General Error:", err);
         return res.json({ text: "An error occurred while connecting to Wanderlust AI." });
