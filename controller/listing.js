@@ -209,7 +209,7 @@ Role & Output Guidelines:
                         contents: userPrompt,
                         config: { 
                             systemInstruction,
-                            maxOutputTokens: 700
+                            maxOutputTokens: 2500
                         }
                     });
                     if (response && response.text) {
